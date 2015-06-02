@@ -3,7 +3,7 @@
 This PowerShell Module uses the Microsoft.Exchange.Management.PowerShell.E2010 PSSnapin. It is built and designed to work specifically with Exchange 2010 SP3 RU5+
 
 It Requires PowerShell V2.0
-Exchange Management Tools are required if not ran on an Exchang Server directly. 
+*Exchange Management Tools are required if not ran on an Exchang Server directly. 
 
 The module contains the following functions.
 
