@@ -511,3 +511,224 @@ Function Get-PublicFolderReport {
         Write-Verbose "Completed End Block"
     }
 }
+Function Get-SystemInfo {
+<#
+.Synopsis
+   Get-SystemInfo is used to retreive normal data from a comptuer or list of computers. 
+.DESCRIPTION
+   Get-SystemInfo is used to retreive normal data from a comptuer or list of computers. The function queries specific wmi objects from the remote computer. 
+.EXAMPLE
+    Get-SystemInfo
+
+
+    ServerName         : LocalHost
+    ServerModel        : VMware Virtual Platform
+    SerialNumber       : VMware-42 1c ed 95 a4 16 dd 93-7f b6 1a d1 1c d0 15 08
+    Manufacturer       : VMware, Inc.
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Standard 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 4
+    TotalPhysicalCores : 4
+    TotalThreads       : 4
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 8
+    
+    This example show running the command against the localhost. 
+.EXAMPLE
+   Get-SystemInfo -Computer Server01
+
+
+    ServerName         : Server01
+    ServerModel        : ProLiant DL380p Gen8
+    SerialNumber       : USE317RR2      
+    Manufacturer       : HP
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Enterprise 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 2
+    TotalPhysicalCores : 16
+    TotalThreads       : 32
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 32 
+
+    This example show how to specify a computer.
+    
+.EXAMPLE
+    Get-SystemInfo -Computer Server01, Server02
+
+
+    ServerName         : Server01
+    ServerModel        : ProLiant DL380p Gen8
+    SerialNumber       : USE317RR2      
+    Manufacturer       : HP
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Enterprise 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 2
+    TotalPhysicalCores : 16
+    TotalThreads       : 32
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 32 
+
+    ServerName         : Server02
+    ServerModel        : VMware Virtual Platform
+    SerialNumber       : VMware-42 1c e9 b1 df 6b 9c d5-71 c2 19 3a 9d 7a 9d 3d
+    Manufacturer       : VMware, Inc.
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Enterprise 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 8
+    TotalPhysicalCores : 8
+    TotalThreads       : 8
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 64
+
+    This examples is showing how it works with multiple computers.
+.EXAMPLE
+    Get-Content C:\Temp\ComputerList.txt | Get-SystemInfo
+
+
+    ServerName         : Server01
+    ServerModel        : VMware Virtual Platform
+    SerialNumber       : VMware-42 1c e9 b1 df 6b 9c d5-71 c2 19 3a 9d 7a 9d 3d
+    Manufacturer       : VMware, Inc.
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Enterprise 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 8
+    TotalPhysicalCores : 8
+    TotalThreads       : 8
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 64
+
+    ServerName         : Server02
+    ServerModel        : VMware Virtual Platform
+    SerialNumber       : VMware-42 1c e9 7d 2f 09 4e 16-1c 26 20 da c9 d7 62 58
+    Manufacturer       : VMware, Inc.
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Standard 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 4
+    TotalPhysicalCores : 8
+    TotalThreads       : 8
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 16
+
+    ServerName         : Server03
+    ServerModel        : VMware Virtual Platform
+    SerialNumber       : VMware-42 1c 3e 6a 01 cc e1 ea-3e fb ed a6 77 18 c8 d3
+    Manufacturer       : VMware, Inc.
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Standard 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 4
+    TotalPhysicalCores : 8
+    TotalThreads       : 8
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 8
+
+    ServerName         : Server04
+    ServerModel        : ProLiant DL380p Gen8
+    SerialNumber       : USE2182RR6      
+    Manufacturer       : HP
+    OperatingSystem    : Microsoft Windows Server 2008 R2 Enterprise 
+    ProcessorType      : Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+    TotalSockets       : 2
+    TotalPhysicalCores : 16
+    TotalThreads       : 32
+    MaxClockSpeed      : 2600
+    TotalMemory(GB)    : 32
+
+    This example shows how to use Get-Content to retrieve a list of servers and then pipeline it to Get-SystemInfo
+.INPUTS
+   Inputs to this cmdlet (if any)
+.OUTPUTS
+   Output from this cmdlet (if any)
+.NOTES
+   General notes
+.COMPONENT
+   The component this cmdlet belongs to
+.ROLE
+   The role this cmdlet belongs to
+.FUNCTIONALITY
+   The functionality that best describes this cmdlet
+#>
+    [CmdletBinding(SupportsShouldProcess=$true, 
+                    PositionalBinding=$false,
+                    HelpUri = 'http://www.microsoft.com/',
+                    ConfirmImpact='Low')]
+    Param(
+        # Specifies the target computer for the management operation. Enter a fully qualified domain name, a NetBIOS name, or an 
+        # IP address. When the remote computer is in a different domain than the local computer, the fully qualified domain name is required.
+        #
+        # The default is the local computer. To specify the local computer, such as in a list of computer names, use 
+        # "localhost", the local computer name, or a dot (.).
+        #
+        # This parameter does not rely on Windows PowerShell remoting, which uses WS-Management. You can use the ComputerName
+        # parameter of Get-WmiObject even if your computer is not configured to run WS-Management remote commands.
+        [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$true, 
+                   ValueFromPipelineByPropertyName=$true, 
+                   Position=0)]
+        [Alias('ComputerName',
+               'Server',
+               'ServerName')] 
+        [String[]]$Computer = 'LocalHost',
+        # When used with -LogErrors, specifies the file path and name to which failed computer names will be writtien. Defaults to C:\Get-SystemInfo_ErrorLog.txt
+        [String]$Errorlog = 'C:\ErrorLog.txt',
+        # Specify this swith to create a text log file of computers that could not be queried. 
+        [Switch]$LogErrors
+    )
+    Begin{
+        Write-Verbose "Start BEGIN Block"
+            Write-Verbose "Error log will be $Errorlog"
+        Write-Verbose "End BEGIN Block"
+    }
+    Process{
+        Write-Verbose "Start PROCESS Block"
+            Foreach ( $ComputerName in $Computer ) {
+                Write-Verbose "Begin WMI query on $ComputerName"
+                Try{
+                    Write-Verbose "Querying Manfacutuer Information"
+                        $Manufacturer = Get-WmiObject -Class Win32_ComputerSystem -ComputerName $ComputerName -ErrorAction Stop
+                    $Successful = $true
+                }
+                Catch{
+                    $Successful = $false
+                    Write-Warning "$ComputerName failed"
+                    Write-Warning $_.Exception.Message
+                    If ( $LogErrors ) {
+                        $ComputerName | Out-File $Errorlog -Append
+                        Write-Warning "Logged to $Errorlog"
+                    }   
+                }
+                If ( $Successful ) {
+                    Write-Verbose "Querying BIOS Information"
+                        $Bios = Get-WmiObject -Class Win32_BIOS -ComputerName $ComputerName -ErrorAction Stop
+                    Write-Verbose "Querying Processor Information"
+                        $Processor = Get-WmiObject -Class Win32_Processor -ComputerName $ComputerName -ErrorAction Stop
+                    Write-Verbose "Querying Memory Inforation"
+                        $Memory = Get-WmiObject -Class Win32_PhysicalMemory -ComputerName $ComputerName -ErrorAction Stop
+                    Write-Verbose "Querying Operating System Information"
+                        $OS = Get-WmiObject -ClassName Win32_OperatingSystem -ComputerName $ComputerName -ErrorAction Stop
+                    Write-Verbose "Completed WMI query on $ComputerName"
+                    Write-Verbose "Creating properties for Object"
+                        $Property = @{ ServerName         = $OS.__SERVER
+                                       ServerModel        = $Manufacturer.Model
+                                       SerialNumber       = $Bios.SerialNumber
+                                       Manufacturer       = $Manufacturer.Manufacturer 
+                                       OperatingSystem    = $OS.Caption
+                                       ProcessorType      = $Processor.Name[0]
+                                       TotalSockets       = ( $Processor ).Count
+                                       TotalPhysicalCores = ( $Processor | Measure-Object -Property NumberOfCores -Sum ).sum
+                                       TotalThreads       = ( $Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum ).sum
+                                       MaxClockSpeed      = ( $Processor[0] | Measure-Object -Property MaxClockSpeed -sum ).sum
+                                       'TotalMemory(GB)'  = [System.Math]::Round( ( $Memory  | Measure-Object -Property Capacity -Sum ).sum /1GB, 2)  
+                                    }
+                    Write-Verbose "Creating Object"
+                        $Object = New-Object -TypeName PSCustomObject -Property $Property
+                    Write-Verbose "Writing output of Object"
+                        Write-Output $Object | Select-Object 'ServerName','ServerModel','SerialNumber','Manufacturer','OperatingSystem','ProcessorType','TotalSockets','TotalPhysicalCores','TotalThreads','MaxClockSpeed','TotalMemory(GB)'
+                }
+            }
+        Write-Verbose "End PROCESS Block"
+    }
+    End{
+        Write-Verbose "Start END Block"  
+        Write-Verbose "End END Block"
+    }
+}
